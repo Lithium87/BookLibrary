@@ -12,7 +12,9 @@ namespace BookLibrary.Models
         public int Pages { get; private set; }
         public string Isbn { get; private set; }
 
-        public Book(string title, string author, int year, int pages, string isbn)
+        public string Category { get; private set; }
+
+        public Book(string title, string author, int year, int pages, string isbn, string category      )
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -37,11 +39,17 @@ namespace BookLibrary.Models
                 throw new ArgumentOutOfRangeException(nameof(pages), "Number of pages must be a positive number.");
             }
 
+            if(string.IsNullOrWhiteSpace(category))
+            {
+                throw new ArgumentException("Category is required.", nameof(category));
+            }
+
             this.Title = title;
             this.Author = author;
             this.Year = year;
             this.Pages = pages;
             this.Isbn = isbn;
+            this.Category = category;
         }
     }
 }
