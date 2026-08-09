@@ -1,4 +1,5 @@
-﻿using BookLibrary.Models;
+﻿using BookLibrary.Services;
+using BookLibrary.UI;
 
 namespace BookLibrary
 {
@@ -6,13 +7,11 @@ namespace BookLibrary
     {
         static void Main(string[] args)
         {
-            Book book = new Book(
-    "Clean Code",
-    "Robert C. Martin",
-    2008,
-    464,
-    "9780132350884",
-    "Programming");
+            ILibrary library = new Library();
+
+            ConsoleMenu consoleMenu = new ConsoleMenu(library);
+
+            consoleMenu.Run();
         }
     }  
 }

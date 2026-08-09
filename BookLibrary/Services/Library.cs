@@ -1,8 +1,8 @@
-﻿
+﻿using BookLibrary.Models;
 
-namespace BookLibrary.Models
+namespace BookLibrary.Services
 {
-    public class Library
+    public class Library : ILibrary
     {
         private readonly List<Book> _books;
 
@@ -29,9 +29,9 @@ namespace BookLibrary.Models
             this._books.Add(book);
         }
 
-        public List<Book> GetAllBooks()
+        public IReadOnlyList<Book> GetAllBooks()
         {
-            return new List<Book>(this._books);
+            return this._books;
         }
 
         public void RemoveBook(string isbn)
@@ -64,7 +64,7 @@ namespace BookLibrary.Models
             return book;
         }
 
-        public List<Book> FindBooksByAuthor(string author)
+        public IReadOnlyList<Book> FindBooksByAuthor(string author)
         {
             if(string.IsNullOrWhiteSpace(author))
             {
@@ -74,7 +74,7 @@ namespace BookLibrary.Models
             return this._books.Where(book => book.Author == author).ToList();
         }
 
-        public List<Book> FindBooksByTitle(string title)
+        public IReadOnlyList<Book> FindBooksByTitle(string title)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -83,7 +83,7 @@ namespace BookLibrary.Models
             return this._books.Where(book => book.Title == title).ToList();
         }
 
-        public List<Book> FindBooksByCategory(string category)
+        public IReadOnlyList<Book> FindBooksByCategory(string category)
         {
             if (string.IsNullOrWhiteSpace(category))
             {

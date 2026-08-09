@@ -51,5 +51,14 @@ namespace BookLibrary.Models
             this.Isbn = isbn;
             this.Category = category;
         }
+
+        public override string ToString()
+        {
+            return $"Title: {Title}\n" +
+                   $"Author: {Author}\n" +
+                   $"Year: {Year}\n" +
+                   $"Pages: {Pages}\n" +
+                   $"ISBN: {Isbn}";
+        }
     }
 }
