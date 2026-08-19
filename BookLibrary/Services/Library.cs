@@ -1,14 +1,30 @@
 ﻿using BookLibrary.Models;
+using Microsoft.Extensions.Logging;
 
 namespace BookLibrary.Services
 {
     public class Library : ILibrary
     {
         private readonly List<Book> _books;
+        private readonly IStorage<Book> _storage;
+        private readonly ILogger<Library> _logger;
 
-        public Library()
+        public Library(IStorage<Book> storage, ILogger<Library> logger)
         {
-            this._books = new List<Book>();
+            _storage = storage;
+            _logger = logger;
+            try
+            {
+                _books = storage.Load().ToList();
+
+                _logger.LogInformation("Library loaded successfully with {Count} books.", _books.Count);
+            }
+            catch(StorageException ex)
+            {
+                _logger.LogCritical(ex, "Failed to load the library from storage.");
+
+                throw;
+            }
         }
 
         public void AddBook(Book book)
@@ -26,7 +42,17 @@ namespace BookLibrary.Services
                 }
             }
 
-            this._books.Add(book);
+            try
+            {
+                this._books.Add(book);
+
+                _logger.LogInformation("Book added to the library. ISBN: {Isbn}, Title: {Title}.", book.Isbn, book.Title);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex, "An error occurred while adding the book with ISBN {Isbn} to the library.", book.Isbn);
+                throw;
+            }
         }
 
         public IReadOnlyList<Book> GetAllBooks()
@@ -46,9 +72,11 @@ namespace BookLibrary.Services
                 throw new InvalidOperationException($"No book with ISBN {isbn} found in the library.");
             }
             this._books.Remove(bookToRemove);
+
+            _logger.LogInformation("Book with ISBN {Isbn} removed from the library.", isbn);
         }
 
-        public Book FindBookByIsbn(string isbn)
+        public Book? FindBookByIsbn(string isbn)
         {
             if (string.IsNullOrWhiteSpace(isbn))
             {
@@ -56,12 +84,12 @@ namespace BookLibrary.Services
             }
             Book book = this._books.SingleOrDefault(b => b.Isbn == isbn);
 
-            if (book is null)
-            {
-                throw new InvalidOperationException($"No book with ISBN {isbn} found in the library.");
-            }
-
             return book;
+        }
+
+        private IReadOnlyList<Book> FindBooks(Func<Book, bool> predicate)
+        {
+            return this._books.Where(predicate).ToList();
         }
 
         public IReadOnlyList<Book> FindBooksByAuthor(string author)
@@ -71,7 +99,7 @@ namespace BookLibrary.Services
                 throw new ArgumentException("Author is required.", nameof(author));
             }
 
-            return this._books.Where(book => book.Author == author).ToList();
+            return FindBooks(book => book.Author == author);
         }
 
         public IReadOnlyList<Book> FindBooksByTitle(string title)
@@ -80,7 +108,7 @@ namespace BookLibrary.Services
             {
                 throw new ArgumentException("Title is required.", nameof(title));
             }
-            return this._books.Where(book => book.Title == title).ToList();
+            return FindBooks(book => book.Title == title);
         }
 
         public IReadOnlyList<Book> FindBooksByCategory(string category)
@@ -89,7 +117,22 @@ namespace BookLibrary.Services
             {
                 throw new ArgumentException("Category is required.", nameof(category));
             }
-            return this._books.Where(book => book.Category == category).ToList();
+            return FindBooks(book => book.Category == category);
+        }
+
+        public void SaveLibrary()
+        {
+            try
+            {
+                _storage.Save(_books);
+
+                _logger.LogInformation("Library saved successfully with {Count} books.", _books.Count);
+            }
+            catch (StorageException ex)
+            {
+                _logger.LogError(ex, "An error occurred while saving the library.");
+                throw;
+            }
         }
     }
 }

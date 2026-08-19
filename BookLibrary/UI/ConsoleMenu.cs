@@ -61,6 +61,20 @@ namespace BookLibrary.UI
             }
         }
 
+        private void DisplayBooks(IReadOnlyList<Book> books)
+        {
+            if (books.Count == 0)
+            {
+                Console.WriteLine("No books found.");
+                return;
+            }
+            foreach (Book book in books)
+            {
+                Console.WriteLine(book);
+                Console.WriteLine("---------------------");
+            }
+        }
+
         private void AddBook()
         {
             try
@@ -108,7 +122,13 @@ namespace BookLibrary.UI
 
             try
             {
-                Book book = _library.FindBookByIsbn(isbn);
+                Book? book = _library.FindBookByIsbn(isbn);
+
+                if (book is null)
+                {
+                    Console.WriteLine("No book found with the given ISBN.");
+                    return;
+                }
 
                 Console.WriteLine();
                 Console.WriteLine(book);
@@ -130,16 +150,7 @@ namespace BookLibrary.UI
             try
             {
                 IReadOnlyList<Book> books = _library.FindBooksByTitle(title);
-                if (books.Count == 0)
-                {
-                    Console.WriteLine("No books found with the given title.");
-                    return;
-                }
-                foreach (Book b in books)
-                {
-                    Console.WriteLine(b);
-                    Console.WriteLine("-------------------------");
-                }
+                DisplayBooks(books);
             }
             catch (ArgumentException ex)
             {
@@ -155,17 +166,7 @@ namespace BookLibrary.UI
             {
                 IReadOnlyList<Book> books = _library.FindBooksByAuthor(author);
 
-                if (books.Count == 0)
-                {
-                    Console.WriteLine("No books found.");
-                    return;
-                }
-
-                foreach (Book book in books)
-                {
-                    Console.WriteLine(book);
-                    Console.WriteLine("---------------------");
-                }
+                DisplayBooks(books);
             }
             catch (ArgumentException ex)
             {
@@ -181,17 +182,7 @@ namespace BookLibrary.UI
             {
                 IReadOnlyList<Book> books = _library.FindBooksByCategory(category);
 
-                if (books.Count == 0)
-                {
-                    Console.WriteLine("No books found.");
-                    return;
-                }
-
-                foreach (Book book in books)
-                {
-                    Console.WriteLine(book);
-                    Console.WriteLine("---------------------");
-                }
+                DisplayBooks(books);
             }
             catch (ArgumentException ex)
             {

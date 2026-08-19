@@ -12,5 +12,7 @@ namespace BookLibrary.Services
         IReadOnlyList<Book> FindBooksByAuthor(string author);
         IReadOnlyList<Book> FindBooksByCategory(string category);
         IReadOnlyList<Book> GetAllBooks();
+
+        void SaveLibrary();
     }
 }
